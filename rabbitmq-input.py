@@ -16,11 +16,12 @@ def main():
     cmd_publisher = Publisher('cmd')
     while run:
         cmd = input("Enter command: ")
-        # cmd = 'm1:foo'
+        # cmd = 'foo:m1'
         if cmd == 'exit':
             run = False
         else:
-            cmd_publisher.send_msg(cmd)
+            data = cmd.split(':')
+            cmd_publisher.send_msg(data[1], 'cmd', data[0])
 
 
 if __name__ == '__main__':

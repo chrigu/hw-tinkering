@@ -1,14 +1,19 @@
 from enum import Enum
+from transitions import Machine
 
-class ValveState(Enum):
-    NEUTRAL = 0
-    FILL_GAS = 1
-    FILL_LIQUID = 2
+from web.publisher import Publisher
 
 
 class BlowoffState(Enum):
     OFF = False
     ON = True
+
+MOTOR_CONFIG = {
+    'main_valve': 'm1',
+    'blowoff': 'm2',
+    'gas_input': 'v1',
+    'gas_output': 'v2'
+}
 
 
 class FillState(Enum):
@@ -26,71 +31,46 @@ class FillState(Enum):
     TRI_NEUTRAL = 11
 
 
-class Events(Enum):
-    START = 'start'
-    STOP = 'stop'
-    GAS_OPEN = 'gas_open'
-    GAS_FILLED = 'gas_filled'
-    GAS_CLOSED = 'gas_closed'
-    LIQUID_OPEN = 'liquid_open'
-    LIQUID_FILLED = 'liquid_filled'
-    LIQUID_CLOSED = 'liquid_closed'
-    RELEASE_OPEN = 'release_open'
-    RELEASE_CLOSED = 'release_closed'
-    TRI_NEUTRAL = 'tri_neutral'
+class BottleFiller(object):
 
+    states = [
+        'off',
+        'opening gas',
+        'gas open',
+        'closing gas',
+        'opening liquid',
+        'liquid open',
+        'opening release',
+        'filling liquid',
+        'closing release',
+        'closing liqiud',
+        'tri neutral',
+    ]
 
-def state_machine(event: Events, state: FillState) -> FillState:
-    if state == FillState.OFF:
-        if event == Events.START:
-            return FillState.OPENING_GAS
+    transitions = [
+        {'trigger': 'start', 'source': 'off', 'dest': 'opening gas'},
+        {'trigger': 'gas_open', 'source': 'opening gas', 'dest': 'gas open', 'on_enter': ['open_gas']},
+        {'trigger': 'gas_filled', 'source': 'gas open', 'dest': 'closing gas'},
+        {'trigger': 'gas_closed', 'source': 'closing gas', 'dest': 'opening liquid'},
+        {'trigger': 'liquid_open', 'source': 'opening liquid', 'dest': 'liquid open'},
+        {'trigger': 'opening_release', 'source': 'liquid open', 'dest': 'filling liquid'},
+        {'trigger': 'release_open', 'source': 'filling liquid', 'dest': 'filling liquid'},
+        {'trigger': 'filled', 'source': 'filling liquid', 'dest': 'closing release'},
+        {'trigger': 'release_closed', 'source': 'closing_release', 'dest': 'closing liquid'},
+        {'trigger': 'liquid_closed', 'source': 'closing liquid', 'dest': 'off'},
+    ]
 
-            # actions: open gas, measure gas
+    def __init__(self):
+        self.machine = Machine(model=self, states=BottleFiller.states, transitions=self.transitions, initial='off')
+        self.cmd_publisher = Publisher('cmd')
 
-    elif state == FillState.OPENING_GAS:
-        if event == Events.GAS_OPEN:
-            return FillState.GAS_OPEN
+    def open_gas(self):
+        print('open gas')
 
-            # actions: measure gas
+    @property
+    def is_exhausted(self):
+        """ Basically a coin toss. """
+        return random.random() < 0.5
 
-    elif state == FillState.GAS_OPEN:
-        if event == Events.GAS_FILLED:
-            return FillState.CLOSING_GAS
-
-            # actions: close gas & mesure
-
-    elif state == FillState.CLOSING_GAS:
-        if event == Events.TRI_NEUTRAL:
-            return FillState.OPENING_LIQUID
-
-            # actions: open liquid & measure liquid
-
-    elif state == FillState.OPENING_LIQUID:
-        if event == Events.LIQUID_OPEN:
-            return FillState.OPENING_RELEASE
-
-            # actions: open liquid & measure liquid
-
-    elif state == FillState.OPENING_RELEASE:
-        if event == Events.RELEASE_OPEN:
-            return FillState.FILLING
-
-            # actions:  measure liquid
-
-    elif state == FillState.FILLING:
-        if event == Events.LIQUID_FILLED:
-            return FillState.CLOSING_RELEASE
-
-            # actions: close release & measure liquid
-
-    elif state == FillState.CLOSING_RELEASE:
-        if event == Events.RELEASE_CLOSED:
-            return FillState.CLOSING_LIQUID
-
-            # actions: close release & measure liquid
-
-    elif state == FillState.CLOSING_LIQUID:
-        if event == Events.LIQUID_CLOSED:
-            return FillState.OFF
-
-    # add stop states
+    def change_into_super_secret_costume(self):
+        print("Beauty, eh?")

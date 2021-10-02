@@ -5,6 +5,9 @@ import pika
 
 LOGGER = logging.getLogger(__name__)
 
+logging.basicConfig()
+logging.getLogger('aio_pika').setLevel(logging.INFO)
+
 class Publisher:
 
     def __init__(self, queue_name):
@@ -20,6 +23,7 @@ class Publisher:
 
         self._channel.queue_declare(queue=self._queue_name)
 
-    def send_msg(self, message):
-        LOGGER.info(f'Sending to {message}')
-        self._channel.basic_publish('', self._queue_name, json.dumps({'cmd': message}))
+    def send_msg(self, node: str, msg_type: str, data: str):
+        LOGGER.info(f'Sending from {node} {msg_type}:{data}')
+        self._channel.basic_publish('', self._queue_name,
+                                    json.dumps({'messageType': msg_type, 'data': data, 'node': node}))

@@ -16,9 +16,12 @@ class FakeMotor:
         self.motor_id = motor_id
         self._position_cb = position_cb
 
-    def turn(self, position: float, direction: int):  # 1 clockwise, -1 counterclockwise
+    def turn(self, position: float, direction: int, speed=0):  # 1 clockwise, -1 counterclockwise
         if not self.turn_done:
             return
+
+        if speed != 0:
+            self.speed = speed
 
         self.turn_done = False
         i = 0
@@ -39,6 +42,7 @@ class FakeMotor:
 
             i += 1
 
+        self.position = position
         self._position_cb(self.position, self.turn_done)
 
     def stop(self):
