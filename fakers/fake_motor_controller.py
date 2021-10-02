@@ -43,28 +43,28 @@ VALVE_MOTOR_CONFIG = {
 class FakeMotorController:
 
     def __init__(self, loop, config: dict):
-        logger.debug(colorama.Fore.GREEN + f"Initializing fake controller for {config['id']}")
         self.loop = loop
         self.consumer = Consumer('cmd', loop, self.cmd_handler)
         self.cmd_publisher = Publisher('data')
         self.motor = FakeMotor(config['initial'], config['speed'], config['name'], config['id'], self.motor_position)
         self.commands = config['commands']
         self.current_cmd = {}
+        logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
         # asyncio.ensure_future(consumer.run())
 
     async def start_listen(self):
         await self.consumer.run()
 
     async def cmd_handler(self, cmd):
-        logger.debug(colorama.Fore.GREEN + f"Fake controller for {self.motor.motor_id} received {cmd}")
+        logger.debug(colorama.Fore.GREEN + f"{self}: received {cmd}")
         if not self._command_for_node(cmd):
-            logger.debug(f'Ignoring command for {self.motor.motor_id}. Got {cmd}')
+            logger.debug(colorama.Fore.YELLOW + f'{self}: Ignoring command')
             return
 
         command = cmd['data']
 
         # logger.info(colorama.Fore.YELLOW + f'{self.motor.motor_id} FakeController got: {command}')
-        print(colorama.Fore.YELLOW + f'{self.motor.motor_id} FakeController got: {command}')
+        print(colorama.Fore.GREEN + f'{self}: {command}')
         if command in [*self.commands]:
             self.current_cmd = self.commands[command]
             self.motor.turn(self.current_cmd['position'], self.current_cmd['direction'])
@@ -74,9 +74,13 @@ class FakeMotorController:
 
     def motor_position(self, position: float, done: bool) -> None:
         self.cmd_publisher.send_msg(self.motor.motor_id, 'data', str(position))
-        print(f'Fakemotor {self.motor.motor_id} at position {position}')
+        logger.debug(colorama.Fore.GREEN + f'{self}: Motor at position {position}')
         if done:
+            logger.debug(colorama.Fore.GREEN + f'{self}: Motor done')
             self.cmd_publisher.send_msg(self.motor.motor_id, 'data', self.current_cmd['done'])
+
+    def __repr__(self):
+        return f'FakeMotorController {self.motor.motor_id}'
 
 
 async def main():
