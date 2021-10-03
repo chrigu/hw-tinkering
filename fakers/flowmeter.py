@@ -13,18 +13,18 @@ class FakeFlowMeter:
         self.name = name
         self.meter_id = meter_id
         self.flow_cb = flow_cb
-        self.measure = False
+        self.is_measuring = False
         self.flow_rate = flow_rate
 
     def measure(self):
-        if self.measure:
+        if self.is_measuring:
             return
 
-        self.measure = True
+        self.is_measuring = True
 
         i = 0
 
-        while self.measure:
+        while self.is_measuring:
             time.sleep(0.1)
 
             self.volume += self.flow_rate/10
@@ -36,4 +36,4 @@ class FakeFlowMeter:
             i += 1
 
     def stop(self):
-        self.measure = False
+        self.is_measuring = False

@@ -8,7 +8,6 @@ from web.consumer import Consumer
 from web.fakers.flowmeter import FakeFlowMeter
 
 from web.publisher import Publisher
-from web.fakers.motor import FakeMotor
 
 logger = logging.getLogger(__name__)
 from colorama import init
@@ -34,13 +33,14 @@ GAS_IN_FLOWMETER_CONFIG = {
     }
 }
 
+
 class FakeFlowMeterController:
 
     def __init__(self, loop, config: dict):
         self.loop = loop
         self.consumer = Consumer('cmd', loop, self.cmd_handler)
         self.cmd_publisher = Publisher('data')
-        self.flowmeter = FakeFlowMeter(config['name'], config['id'], self.gas_volume)
+        self.flowmeter = FakeFlowMeter(config['name'], config['id'], config['flowrate'], self.gas_volume)
         self.commands = config['commands']
         self.current_cmd = {}
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
@@ -50,6 +50,7 @@ class FakeFlowMeterController:
         await self.consumer.run()
 
     async def cmd_handler(self, cmd):
+        print('fooo')
         logger.debug(colorama.Fore.GREEN + f"{self}: received {cmd}")
         if not self._command_for_node(cmd):
             logger.debug(colorama.Fore.YELLOW + f'{self}: Ignoring command')
@@ -66,14 +67,16 @@ class FakeFlowMeterController:
                 self.flowmeter.stop()
 
     def _command_for_node(self, cmd: dict):
-        return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.motor.motor_id
+        return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.flowmeter.meter_id
 
     def gas_volume(self, volume: float) -> None:
         self.cmd_publisher.send_msg(self.flowmeter.meter_id, 'data', str(volume))
         logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}')
+        if volume > 90:
+            self.flowmeter.stop()
 
     def __repr__(self):
-        return f'FakeMotorController {self.flowmeter.meter_id}'
+        return f'FakeFlowmeterController {self.flowmeter.meter_id}'
 
 
 async def main():
