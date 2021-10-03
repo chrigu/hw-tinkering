@@ -63,8 +63,7 @@ class FakeMotorController:
 
         command = cmd['data']
 
-        # logger.info(colorama.Fore.YELLOW + f'{self.motor.motor_id} FakeController got: {command}')
-        print(colorama.Fore.GREEN + f'{self}: {command}')
+        logger.info(colorama.Fore.GREEN + f'{self}: {command}')
         if command in [*self.commands]:
             self.current_cmd = self.commands[command]
             self.motor.turn(self.current_cmd['position'], self.current_cmd['direction'])
