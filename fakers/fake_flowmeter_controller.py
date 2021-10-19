@@ -50,7 +50,6 @@ class FakeFlowMeterController:
         await self.consumer.run()
 
     async def cmd_handler(self, cmd):
-        print('fooo')
         logger.debug(colorama.Fore.GREEN + f"{self}: received {cmd}")
         if not self._command_for_node(cmd):
             logger.debug(colorama.Fore.YELLOW + f'{self}: Ignoring command')

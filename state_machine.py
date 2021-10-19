@@ -1,8 +1,21 @@
+import logging
+import os
+import colorama as colorama
+
+import asyncio
 from enum import Enum
 from transitions import Machine
 
+from web.consumer import Consumer
 from web.publisher import Publisher
 
+logger = logging.getLogger(__name__)
+from colorama import init
+
+LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
+logger.setLevel(LOGLEVEL)
+
+init(autoreset=True)
 
 class BlowoffState(Enum):
     OFF = False
@@ -11,8 +24,8 @@ class BlowoffState(Enum):
 MOTOR_CONFIG = {
     'main_valve': 'm1',
     'blowoff': 'm2',
-    'gas_input': 'v1',
-    'gas_output': 'v2'
+    'gas_input': 'fm1',
+    'gas_output': 'fm2'
 }
 
 
@@ -31,46 +44,91 @@ class FillState(Enum):
     TRI_NEUTRAL = 11
 
 
-class BottleFiller(object):
+class BottleFiller:
 
     states = [
-        'off',
-        'opening gas',
+        {'name': 'off', 'on_enter': ['shutoff']},
+        {'name': 'opening gas', 'on_enter': ['open_gas']},
         'gas open',
-        'closing gas',
-        'opening liquid',
-        'liquid open',
-        'opening release',
+        {'name': 'closing gas', 'on_enter': ['close_gas']},
+        {'name': 'opening liquid', 'on_enter': ['open_liquid']},
+        {'name': 'liquid open', 'on_enter': ['open_release']},
         'filling liquid',
-        'closing release',
-        'closing liqiud',
+        {'name': 'closing release', 'on_enter': ['close_release']},
+        {'name': 'closing liquid', 'on_enter': ['close_liquid']},
         'tri neutral',
     ]
 
     transitions = [
         {'trigger': 'start', 'source': 'off', 'dest': 'opening gas'},
-        {'trigger': 'gas_open', 'source': 'opening gas', 'dest': 'gas open', 'on_enter': ['open_gas']},
+        {'trigger': 'gas_open', 'source': 'opening gas', 'dest': 'gas open'},
         {'trigger': 'gas_filled', 'source': 'gas open', 'dest': 'closing gas'},
         {'trigger': 'gas_closed', 'source': 'closing gas', 'dest': 'opening liquid'},
         {'trigger': 'liquid_open', 'source': 'opening liquid', 'dest': 'liquid open'},
-        {'trigger': 'opening_release', 'source': 'liquid open', 'dest': 'filling liquid'},
-        {'trigger': 'release_open', 'source': 'filling liquid', 'dest': 'filling liquid'},
-        {'trigger': 'filled', 'source': 'filling liquid', 'dest': 'closing release'},
-        {'trigger': 'release_closed', 'source': 'closing_release', 'dest': 'closing liquid'},
+        {'trigger': 'release_open', 'source': 'liquid open', 'dest': 'filling liquid'},
+        {'trigger': 'filled', 'source': ['filling liquid', 'liquid open'], 'dest': 'closing release'},
+        {'trigger': 'release_closed', 'source': 'closing release', 'dest': 'closing liquid'},
         {'trigger': 'liquid_closed', 'source': 'closing liquid', 'dest': 'off'},
+        {'trigger': 'abort', 'source': '*', 'dest': 'off'},
     ]
 
-    def __init__(self):
-        self.machine = Machine(model=self, states=BottleFiller.states, transitions=self.transitions, initial='off')
+    def __init__(self, loop):
+        self.machine = Machine(model=self, states=BottleFiller.states, transitions=BottleFiller.transitions,
+                               initial='off')
         self.cmd_publisher = Publisher('cmd')
+        self.consumer = Consumer('data', loop, self.data_handler)
+
+    async def data_handler(self, data: dict):
+        if not self.is_data(data):
+            pass
+
+        valid_triggers = map(lambda x: x['trigger'], self.transitions)
+
+        if data['data'] not in valid_triggers:
+            return
+        
+        getattr(self, data['data'])()
+
+    def is_data(self, data: dict) -> bool:
+        return data.get('messageType', '') == 'data'
 
     def open_gas(self):
-        print('open gas')
+        self._send_cmd('open_gas')
 
-    @property
-    def is_exhausted(self):
-        """ Basically a coin toss. """
-        return random.random() < 0.5
+    def close_gas(self):
+        self._send_cmd('close_gas')
 
-    def change_into_super_secret_costume(self):
-        print("Beauty, eh?")
+    def open_liquid(self):
+        self._send_cmd('open_liquid')
+
+    def open_release(self):
+        self._send_cmd('open_release')
+
+    def close_release(self):
+        self._send_cmd('close_release')
+
+    def close_liquid(self):
+        self._send_cmd('close_liquid')
+
+    def close_liquid(self):
+        self._send_cmd('close_liquid')
+
+    def shutoff(self):
+        self._send_cmd('shutoff')
+
+    def _send_cmd(self, cmd):
+        logger.debug(colorama.Fore.GREEN + f"{self}: Sending '{cmd}')")
+        self.cmd_publisher.send_msg('sm?', 'cmd', cmd)
+
+    def __repr__(self):
+        return f'BottleFiller'
+
+
+async def main():
+    loop = asyncio.get_event_loop()
+    filler = BottleFiller(loop)
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    future = loop.create_task(main())
+    loop.run_forever()
