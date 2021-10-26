@@ -1,4 +1,5 @@
 import unittest
+from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
 
 from web.state_machine import BottleFiller
@@ -106,8 +107,8 @@ class TestTriggerMethods(unittest.TestCase):
         publisher_send_msg.assert_called_with(SENDER, 'cmd', 'shutoff')
 
 
-class TestDataHandler(unittest.TestCase):
-    
+class TestDataHandler(IsolatedAsyncioTestCase):
+
     @patch('web.consumer.Consumer.__init__')
     @patch('web.publisher.Publisher.__init__')
     def setUp(self, publisher_mock, consumer_mock) -> None:
@@ -116,6 +117,18 @@ class TestDataHandler(unittest.TestCase):
         self.consumer_mock.return_value = None
         self.publisher_mock.return_value = None
         self.filler = BottleFiller(None)
+
+    # @patch('web.state_machine.BottleFiller.call_trigger')
+    # def test_handle_start(self, start_mock):
+    #     await self.filler.data_handler({'messageType': 'data', 'data': 'start'})
+    #     self.assertEqual('off', self.filler.state)
+    #     start_mock.assert_called()
+
+    @patch('web.state_machine.BottleFiller.call_trigger')
+    async def test_handle_start(self, start_mock):
+        await self.filler.data_handler({'messageType': 'data', 'data': 'start'})
+        self.assertEqual('off', self.filler.state)
+        start_mock.assert_called_with('start')
 
 # {'trigger': 'start', 'source': 'off', 'dest': 'opening gas'},
 # {'trigger': 'gas_open', 'source': 'opening gas', 'dest': 'gas open'},

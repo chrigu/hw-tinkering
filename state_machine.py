@@ -87,7 +87,10 @@ class BottleFiller:
         if data['data'] not in valid_triggers:
             return
         
-        getattr(self, data['data'])()
+        self.call_trigger(data['data'])
+
+    def call_trigger(self, data):
+        getattr(self, data)()
 
     def is_data(self, data: dict) -> bool:
         return data.get('messageType', '') == 'data'
