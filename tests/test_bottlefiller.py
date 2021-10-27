@@ -118,25 +118,14 @@ class TestDataHandler(IsolatedAsyncioTestCase):
         self.publisher_mock.return_value = None
         self.filler = BottleFiller(None)
 
-    # @patch('web.state_machine.BottleFiller.call_trigger')
-    # def test_handle_start(self, start_mock):
-    #     await self.filler.data_handler({'messageType': 'data', 'data': 'start'})
-    #     self.assertEqual('off', self.filler.state)
-    #     start_mock.assert_called()
-
     @patch('web.state_machine.BottleFiller.call_trigger')
-    async def test_handle_start(self, start_mock):
+    async def test_handle_valid_command(self, start_mock):
         await self.filler.data_handler({'messageType': 'data', 'data': 'start'})
         self.assertEqual('off', self.filler.state)
         start_mock.assert_called_with('start')
 
-# {'trigger': 'start', 'source': 'off', 'dest': 'opening gas'},
-# {'trigger': 'gas_open', 'source': 'opening gas', 'dest': 'gas open'},
-# {'trigger': 'gas_filled', 'source': 'gas open', 'dest': 'closing gas'},
-# {'trigger': 'gas_closed', 'source': 'closing gas', 'dest': 'opening liquid'},
-# {'trigger': 'liquid_open', 'source': 'opening liquid', 'dest': 'liquid open'},
-# {'trigger': 'release_open', 'source': 'liquid open', 'dest': 'filling liquid'},
-# {'trigger': 'filled', 'source': ['filling liquid', 'liquid open'], 'dest': 'closing release'},
-# {'trigger': 'release_closed', 'source': 'closing release', 'dest': 'closing liquid'},
-# {'trigger': 'liquid_closed', 'source': 'closing liquid', 'dest': 'off'},
-# {'trigger': 'abort', 'source': '*', 'dest': 'off'},
+    @patch('web.state_machine.BottleFiller.call_trigger')
+    async def test_handle_invalid_command(self, start_mock):
+        await self.filler.data_handler({'messageType': 'data', 'data': 'asdfasdf'})
+        self.assertEqual('off', self.filler.state)
+        start_mock.assert_not_called()

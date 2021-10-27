@@ -1,7 +1,6 @@
 import logging
 import os
 
-import asyncio
 import colorama as colorama
 
 from web.consumer import Consumer
@@ -23,21 +22,6 @@ init(autoreset=True)
 # input date controller
 
 # cmd + speed + position + done command, initial
-
-VALVE_MOTOR_CONFIG = {
-    'name': 'Valve motor',
-    'id': 'm1',
-    'initial': 0,
-    'speed': 30,
-    'commands': {
-        'open_gas': {
-            'speed': 30,
-            'position': -90,
-            'direction': -1,
-            'done': 'gas_open'
-        }
-    }
-}
 
 
 class FakeMotorController:
@@ -61,7 +45,7 @@ class FakeMotorController:
             logger.debug(colorama.Fore.YELLOW + f'{self}: Ignoring command')
             return
 
-        command = cmd['data']
+        command = cmd.get('data', '')
 
         logger.info(colorama.Fore.GREEN + f'{self}: {command}')
         if command in [*self.commands]:
@@ -80,14 +64,3 @@ class FakeMotorController:
 
     def __repr__(self):
         return f'FakeMotorController {self.motor.motor_id}'
-
-
-async def main():
-    loop = asyncio.get_event_loop()
-    controller = FakeMotorController(loop, VALVE_MOTOR_CONFIG)
-    await controller.start_listen()
-
-if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
-    future = loop.create_task(main())
-    loop.run_forever()
