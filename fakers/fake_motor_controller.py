@@ -45,11 +45,12 @@ class FakeMotorController:
             logger.debug(colorama.Fore.YELLOW + f'{self}: Ignoring command')
             return
 
-        command = cmd.get('data', '')
+        command_name = cmd.get('data', '')
 
-        logger.info(colorama.Fore.GREEN + f'{self}: {command}')
-        if command in [*self.commands]:
-            self.current_cmd = self.commands[command]
+        logger.info(colorama.Fore.GREEN + f'{self}: {command_name}')
+
+        if command_name in [*self.commands]:
+            self.current_cmd = self.commands[command_name]
             self.motor.turn(self.current_cmd['position'], self.current_cmd['direction'])
 
     def _command_for_node(self, cmd: dict):
