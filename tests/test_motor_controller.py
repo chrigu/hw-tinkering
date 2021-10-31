@@ -2,7 +2,7 @@ import asyncio
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch, call
 
-from web.fakers.fake_motor_controller import FakeMotorController
+from web.fakers.motor_controller import FakeMotorController
 
 
 VALVE_MOTOR_CONFIG = {
