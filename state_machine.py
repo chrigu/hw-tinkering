@@ -76,17 +76,31 @@ class BottleFiller:
         self.machine = Machine(model=self, states=BottleFiller.states, transitions=BottleFiller.transitions,
                                initial='off')
         self.cmd_publisher = Publisher('cmd')
-        self.consumer = Consumer('data', loop, self.data_handler)
+        self.cmd_consumer = Consumer('cmd', loop, self.consumer_handler)
+        self.data_consumer = Consumer('data', loop, self.consumer_handler)
 
-    async def data_handler(self, data: dict):
-        if not self.is_data(data):
-            pass
+    async def start_listen(self):
+        await self.cmd_consumer.run()
+        await self.data_consumer.run()
 
+    async def consumer_handler(self, data: dict):
+        logger.debug(colorama.Fore.GREEN + f'{self} data: {data}')
+        if self.is_data(data):
+            self.data_handler(data)
+        else:
+            self.cmd_handler(data)
+
+    def data_handler(self, data: dict):
+        logger.debug(colorama.Fore.YELLOW + f'{self} data_handler: {data}')
+
+    def cmd_handler(self, data: dict):
+        logger.debug(colorama.Fore.YELLOW + f'{self} cmd_handler: {data}')
         valid_triggers = map(lambda x: x['trigger'], self.transitions)
 
         if data['data'] not in valid_triggers:
+            logger.debug(colorama.Fore.RED + f'{self} cmd_handler: No valid trigger {data["data"]}')
             return
-        
+
         self.call_trigger(data['data'])
 
     def call_trigger(self, data):
@@ -121,7 +135,7 @@ class BottleFiller:
 
     def _send_cmd(self, cmd):
         logger.debug(colorama.Fore.GREEN + f"{self}: Sending '{cmd}')")
-        self.cmd_publisher.send_msg('sm?', 'cmd', cmd)
+        self.cmd_publisher.send_msg('m1', 'cmd', cmd)
 
     def __repr__(self):
         return f'BottleFiller'
@@ -130,6 +144,7 @@ class BottleFiller:
 async def main():
     loop = asyncio.get_event_loop()
     filler = BottleFiller(loop)
+    await filler.start_listen()
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

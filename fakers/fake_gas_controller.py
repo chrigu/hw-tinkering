@@ -2,13 +2,8 @@ import logging
 import os
 
 import asyncio
-import colorama as colorama
 
-from web.consumer import Consumer
-from web.fakers.fake_motor_controller import FakeMotorController
-
-from web.publisher import Publisher
-from web.fakers.motor import FakeMotor
+from web.fakers.motor_controller import FakeMotorController
 
 logger = logging.getLogger(__name__)
 from colorama import init
@@ -39,6 +34,7 @@ VALVE_MOTOR_CONFIG = {
         }
     }
 }
+
 
 async def main():
     loop = asyncio.get_event_loop()

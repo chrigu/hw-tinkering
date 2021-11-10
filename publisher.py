@@ -8,6 +8,7 @@ LOGGER = logging.getLogger(__name__)
 logging.basicConfig()
 logging.getLogger('aio_pika').setLevel(logging.INFO)
 
+
 class Publisher:
 
     def __init__(self, queue_name):

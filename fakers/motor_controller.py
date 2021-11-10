@@ -29,7 +29,8 @@ class FakeMotorController:
     def __init__(self, loop, config: dict):
         self.loop = loop
         self.consumer = Consumer('cmd', loop, self.cmd_handler)
-        self.cmd_publisher = Publisher('data')
+        self.data_publisher = Publisher('data')
+        self.cmd_publisher = Publisher('cmd')
         self.motor = FakeMotor(config['initial'], config['speed'], config['name'], config['id'], self.motor_position)
         self.commands = config['commands']
         self.current_cmd = {}
@@ -57,11 +58,11 @@ class FakeMotorController:
         return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.motor.motor_id
 
     def motor_position(self, position: float, done: bool) -> None:
-        self.cmd_publisher.send_msg(self.motor.motor_id, 'data', str(position))
+        self.data_publisher.send_msg(self.motor.motor_id, 'data', str(position))
         logger.debug(colorama.Fore.GREEN + f'{self}: Motor at position {position}')
         if done:
             logger.debug(colorama.Fore.GREEN + f'{self}: Motor done')
-            self.cmd_publisher.send_msg(self.motor.motor_id, 'data', self.current_cmd['done'])
+            self.cmd_publisher.send_msg(self.motor.motor_id, 'cmd', self.current_cmd['done'])
 
     def __repr__(self):
         return f'FakeMotorController {self.motor.motor_id}'

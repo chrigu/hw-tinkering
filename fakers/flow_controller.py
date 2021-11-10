@@ -38,10 +38,6 @@ class FakeFlowMeterController:
         if command == self.trigger_cmd:
             self.current_cmd = self.trigger_cmd
             self.flowmeter.measure()
-            # if self.current_cmd == 'measure':
-            #     self.flowmeter.measure()
-            # elif self.current_cmd == 'stop':
-            #     self.flowmeter.stop()
 
     def _command_for_node(self, cmd: dict):
         return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.flowmeter.meter_id

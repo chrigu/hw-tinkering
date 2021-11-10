@@ -35,5 +35,4 @@ class Consumer(object):
         async with message.process():
             body_as_string = "".join(chr(x) for x in message.body)
             msg_data = json.loads(body_as_string)
-            print(msg_data)
             await self._message_handler(msg_data)

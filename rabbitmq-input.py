@@ -21,7 +21,7 @@ def main():
             run = False
         else:
             data = cmd.split(':')
-            cmd_publisher.send_msg(data[1], 'cmd', data[0])
+            cmd_publisher.send_msg(data[0], 'cmd', data[1])
 
 
 if __name__ == '__main__':
