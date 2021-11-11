@@ -21,7 +21,6 @@ class FakeFlowMeterController:
         self.threshold_cmd = config['threshold']['command']
         self.current_cmd = {}
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
-        # asyncio.ensure_future(consumer.run())
 
     async def start_listen(self):
         await self.consumer.run()

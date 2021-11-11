@@ -72,7 +72,8 @@ class BottleFiller:
         {'trigger': 'abort', 'source': '*', 'dest': 'off'},
     ]
 
-    def __init__(self, loop):
+    def __init__(self, loop, id):
+        self.id = id
         self.machine = Machine(model=self, states=BottleFiller.states, transitions=BottleFiller.transitions,
                                initial='off')
         self.cmd_publisher = Publisher('cmd')
@@ -85,6 +86,8 @@ class BottleFiller:
 
     async def consumer_handler(self, data: dict):
         logger.debug(colorama.Fore.GREEN + f'{self} data: {data}')
+        if data['node'] != self.id:
+            return
         if self.is_data(data):
             self.data_handler(data)
         else:
@@ -143,7 +146,7 @@ class BottleFiller:
 
 async def main():
     loop = asyncio.get_event_loop()
-    filler = BottleFiller(loop)
+    filler = BottleFiller(loop, 'sm')
     await filler.start_listen()
 
 if __name__ == '__main__':

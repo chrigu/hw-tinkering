@@ -6,8 +6,6 @@ from web.consumer import Consumer
 from web.fakers.main_valve import FakeMainValve
 
 from web.publisher import Publisher
-from web.state_machine import ValveState, Events
-from web.fakers.motor import FakeMotor
 
 logger = logging.getLogger(__name__)
 from colorama import init
@@ -29,6 +27,7 @@ class FakeValveController:
         self.consumer = Consumer('cmd', loop, self.cmd_handler)
         self.cmd_publisher = Publisher('data')
         self.valve = FakeMainValve(0, 30, valve_name, valve_id, 40, 20)
+        logger.debug(colorama.Fore.GREEN + f'Valvecontroller {valve_id} setup')
         # asyncio.ensure_future(consumer.run())
 
     async def start_listen(self):

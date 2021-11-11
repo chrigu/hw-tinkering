@@ -8,8 +8,6 @@ from web.consumer import Consumer
 from web.fakers.flow_controller import FakeFlowMeterController
 from web.fakers.flowmeter import FakeFlowMeter
 
-from web.publisher import Publisher
-
 logger = logging.getLogger(__name__)
 from colorama import init
 
@@ -27,8 +25,8 @@ init(autoreset=True)
 GAS_IN_FLOWMETER_CONFIG = {
     'name': 'Gas in flowmeter',
     'id': 'fm1',
-    'flowrate': 30, #only for faek
-    'trigger': 'open_gas',
+    'flowrate': 30,  # only for fake
+    'trigger_command': 'open_gas',
     'threshold': {
         'value': 100,
         'command': 'close_valve'
