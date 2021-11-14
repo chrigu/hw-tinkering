@@ -14,11 +14,13 @@ class FakeFlowMeterController:
     def __init__(self, loop, config: dict):
         self.loop = loop
         self.consumer = Consumer('cmd', loop, self.cmd_handler)
-        self.cmd_publisher = Publisher('data')
+        self.cmd_publisher = Publisher('cmd')
+        self.data_publisher = Publisher('data')
         self.flowmeter = FakeFlowMeter(config['name'], config['id'], config['flowrate'], self.gas_volume)
         self.trigger_cmd = config['trigger_command']
         self.threshold = config['threshold']['value']
         self.threshold_cmd = config['threshold']['command']
+        self.state_machine_id = config['state_machine_id']
         self.current_cmd = {}
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
 
@@ -39,14 +41,15 @@ class FakeFlowMeterController:
             self.flowmeter.measure()
 
     def _command_for_node(self, cmd: dict):
-        return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.flowmeter.meter_id
+        return cmd.get('messageType', '') == 'cmd'
 
     def gas_volume(self, volume: float) -> None:
-        self.cmd_publisher.send_msg(self.flowmeter.meter_id, 'data', str(volume))
+        print('some', volume)
+        self.data_publisher.send_msg(self.flowmeter.meter_id, 'data', str(volume))
         logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}')
         if volume > self.threshold:
             self.flowmeter.stop()
-            self.cmd_publisher.send_msg(self.flowmeter.meter_id, 'data', str(self.threshold_cmd))
+            self.cmd_publisher.send_msg(self.state_machine_id, 'cmd', str(self.threshold_cmd))
 
     def __repr__(self):
         return f'FakeFlowmeterController {self.flowmeter.meter_id}'

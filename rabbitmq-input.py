@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 def main():
     run = True
     cmd_publisher = Publisher('cmd')
-    while run:
-        cmd = input("Enter command: ")
-        # cmd = 'foo:m1'
-        if cmd == 'exit':
-            run = False
-        else:
-            data = cmd.split(':')
-            cmd_publisher.send_msg(data[0], 'cmd', data[1])
+    cmd_publisher.send_msg('fm1', 'cmd', 'open_gas')
+    # while run:
+    #     cmd = input("Enter command: ")
+    #     if cmd == 'exit':
+    #         run = False
+    #     else:
+    #         data = cmd.split(':')
+    #         cmd_publisher.send_msg(data[0], 'cmd', data[1])
 
 
 if __name__ == '__main__':

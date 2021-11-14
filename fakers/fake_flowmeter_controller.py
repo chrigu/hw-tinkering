@@ -27,9 +27,10 @@ GAS_IN_FLOWMETER_CONFIG = {
     'id': 'fm1',
     'flowrate': 30,  # only for fake
     'trigger_command': 'open_gas',
+    'state_machine_id': 'sm',
     'threshold': {
         'value': 100,
-        'command': 'close_valve'
+        'command': 'gas_filled'
     }
 }
 
