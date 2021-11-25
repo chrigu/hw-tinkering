@@ -35,7 +35,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 cmd_publisher = Publisher('cmd')
-cmd_publisher.send_msg('init')
+# cmd_publisher.send_msg('init')
 
 # logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 # amqp_url = 'amqp://guest:guest@localhost:5672/%2F'
@@ -44,7 +44,8 @@ cmd_publisher.send_msg('init')
 
 async def send_ws(message):
     logging.debug(f'WS-manager got message {message}')
-    await manager.broadcast(message['cmd'])
+    print(message)
+    await manager.broadcast(message)
 
 
 
@@ -55,13 +56,15 @@ async def startup():
     loop = asyncio.get_event_loop()
     # use the same loop to consume
     # asyncio.ensure_future(consume(loop))
-    consumer = Consumer('data', loop, send_ws)
+    data_consumer = Consumer('data', loop, send_ws)
+    cmd_consumer = Consumer('cmd', loop, send_ws)
     # asyncio.ensure_future(consumer.run())
-    await consumer.run()
+    await data_consumer.run()
+    await cmd_consumer.run()
 
 @app.get("/")
 async def get():
-    cmd_publisher.send_msg('start')
+    # cmd_publisher.send_msg('start')
     return {"message": "start sent"}
 
 
@@ -71,8 +74,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            # await manager.send_personal_message(f"You wrote: {data}", websocket)
+            # await manager.broadcast(f"Client #{client_id} says: {data}")
+
+            # decode message
+            cmd_publisher.send_msg(data)
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
