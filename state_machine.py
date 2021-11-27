@@ -10,16 +10,17 @@ from web.consumer import Consumer
 from web.publisher import Publisher
 
 logger = logging.getLogger(__name__)
-from colorama import init
 
 LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 logger.setLevel(LOGLEVEL)
 
-init(autoreset=True)
+colorama.init(autoreset=True)
+
 
 class BlowoffState(Enum):
     OFF = False
     ON = True
+
 
 MOTOR_CONFIG = {
     'main_valve': 'm1',
@@ -138,7 +139,7 @@ class BottleFiller:
 
     def _send_cmd(self, cmd):
         logger.debug(colorama.Fore.GREEN + f"{self}: Sending '{cmd}')")
-        self.cmd_publisher.send_msg('m1', 'cmd', cmd)
+        self.cmd_publisher.send_msg('sm', cmd)
 
     def __repr__(self):
         return f'BottleFiller'

@@ -45,11 +45,11 @@ class FakeFlowMeterController:
 
     def gas_volume(self, volume: float) -> None:
         print('some', volume)
-        self.data_publisher.send_msg(self.flowmeter.meter_id, 'data', str(volume))
+        self.data_publisher.send_msg(self.flowmeter.meter_id, str(volume))
         logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}')
         if volume > self.threshold:
             self.flowmeter.stop()
-            self.cmd_publisher.send_msg(self.state_machine_id, 'cmd', str(self.threshold_cmd))
+            self.cmd_publisher.send_msg(self.state_machine_id, str(self.threshold_cmd))
 
     def __repr__(self):
         return f'FakeFlowmeterController {self.flowmeter.meter_id}'

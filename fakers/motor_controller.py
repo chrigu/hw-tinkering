@@ -55,14 +55,14 @@ class FakeMotorController:
             self.motor.turn(self.current_cmd['position'], self.current_cmd['direction'])
 
     def _command_for_node(self, cmd: dict):
-        return cmd.get('messageType', '') == 'cmd' and cmd.get('node', '') == self.motor.motor_id
+        return cmd.get('messageType', '') == 'cmd'
 
     def motor_position(self, position: float, done: bool) -> None:
-        self.data_publisher.send_msg(self.motor.motor_id, 'data', str(position))
+        self.data_publisher.send_msg(self.motor.motor_id, str(position))
         logger.debug(colorama.Fore.GREEN + f'{self}: Motor at position {position}')
         if done:
             logger.debug(colorama.Fore.GREEN + f'{self}: Motor done')
-            self.cmd_publisher.send_msg(self.motor.motor_id, 'cmd', self.current_cmd['done'])
+            self.cmd_publisher.send_msg(self.motor.motor_id, self.current_cmd['done'])
 
     def __repr__(self):
         return f'FakeMotorController {self.motor.motor_id}'
