@@ -87,8 +87,8 @@ class BottleFiller:
 
     async def consumer_handler(self, data: dict):
         logger.debug(colorama.Fore.GREEN + f'{self} data: {data}')
-        if data['node'] != self.id:
-            return
+        # if data['node'] != self.id:
+        #     return
         if self.is_data(data):
             self.data_handler(data)
         else:

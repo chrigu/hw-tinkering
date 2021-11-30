@@ -42,11 +42,11 @@ cmd_publisher = Publisher('cmd')
 # consumer = ReconnectingConsumer(amqp_url, 'cmd')
 # consumer.run()
 
+
 async def send_ws(message):
     logging.debug(f'WS-manager got message {message}')
     print(message)
     await manager.broadcast(message)
-
 
 
 app = FastAPI()
@@ -78,7 +78,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: int):
             # await manager.broadcast(f"Client #{client_id} says: {data}")
 
             # decode message
-            cmd_publisher.send_msg(data)
+            cmd_publisher.send_msg('web', data)
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
