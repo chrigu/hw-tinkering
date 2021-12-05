@@ -1,14 +1,14 @@
 <template>
   <tr>
     <td class="border border-green-600">{{name}}</td>
-    <td class="border border-green-600">{{queueData}}</td>
-    <td class="border border-green-600">{{cmdData}}</td>
+    <td class="border border-green-600">{{latestMessages.data}}</td>
+    <td class="border border-green-600">{{latestMessages.cmd}}</td>
   </tr>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-
+import { LatesComponentData } from '@/store/store';
 
 export default defineComponent({
   name: 'ComponentTableRow',
@@ -17,12 +17,8 @@ export default defineComponent({
       type: String,
       required: true
     },
-    queueData: {
-      type: Object,
-      required: true
-    },
-    cmdData: {
-      type: Object,
+    latestMessages: {
+      type: Object as () => LatesComponentData,
       required: true
     }
   }

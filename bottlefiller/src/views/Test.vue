@@ -12,7 +12,7 @@
       <QueueDisplay 
         :value="store.latestCmd"
         :title="'Cmd'"></QueueDisplay>
-      <ComponentTable />
+      <ComponentTable :component-data="store.latestValuesForComponents" />
   </div>
 </template>
 
@@ -44,7 +44,6 @@ export default defineComponent({
         sendCommand,
         store
       }
-
   }
 });
 </script>

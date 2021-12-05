@@ -1,4 +1,7 @@
 <template>
+<ul>
+  <li v-for="c in components" v-bind:key="c">{{c}}</li>
+</ul>
   <table class="border-collapse border border-green-800">
     <thead>
         <tr>
@@ -8,44 +11,37 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-        <td class="border border-green-600">Indiana</td>
-        <td class="border border-green-600">Indianapolis</td>
-        <td class="border border-green-600">Indianapolis</td>
-        </tr>
-        <tr>
-        <td class="border border-green-600">Ohio</td>
-        <td class="border border-green-600">Columbus</td>
-        <td class="border border-green-600">Columbus</td>
-        </tr>
-        <tr>
-        <td class="border border-green-600">Michigan</td>
-        <td class="border border-green-600">Detroit</td>
-        <td class="border border-green-600">Detroit</td>
-        </tr>
+        <ComponentTableRow 
+        v-for="c in components" 
+        v-bind:key="c" 
+        :latest-messages="componentData[c]"
+        :name="c"/>
     </tbody>
   </table>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import { LatestData } from '@/store/store';
+import ComponentTableRow from '@/components/ComponentTableRow.vue'
 
 
 export default defineComponent({
   name: 'ComponentData',
+  components: {ComponentTableRow},
   props: {
-    name: {
-      type: String,
-      required: true
-    },
-    queueData: {
-      type: Object,
-      required: true
-    },
-    cmdData: {
-      type: Object,
+    componentData: {
+      type: Object as () => LatestData,
       required: true
     }
+  },
+  setup(props) {
+      console.log(props.componentData)
+      const components = ref(Object.keys(props.componentData))
+
+return {
+        components
+      }
   }
 });
 </script>
