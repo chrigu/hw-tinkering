@@ -27,7 +27,7 @@ VALVE_MOTOR_CONFIG = {
     'speed': 30,
     'commands': {
         'open_gas': {
-            'speed': 30,
+            'speed': 2,
             'position': -90,
             'direction': -1,
             'done': 'gas_open'

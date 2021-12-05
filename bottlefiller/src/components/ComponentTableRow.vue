@@ -1,8 +1,8 @@
 <template>
   <tr>
     <td class="border border-green-600">{{name}}</td>
-    <td class="border border-green-600">{{latestMessages.data}}</td>
-    <td class="border border-green-600">{{latestMessages.cmd}}</td>
+    <td class="border border-green-600">{{latestMessages.data?.data}}</td>
+    <td class="border border-green-600">{{latestMessages.cmd?.data}}</td>
   </tr>
 </template>
 
