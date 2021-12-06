@@ -1,8 +1,13 @@
 
 <template>
   <div class="test">
-      <input v-model="cmd" type="text" />
-      <button @click="sendCommand">Send command</button>
+      <input
+          class="border-solid border-2 p2"
+          v-model="cmd"
+          type="text" />
+      <button
+          class="border-green-500 border-solid border-2 bg-green-300 p-2"
+          @click="sendCommand">Send command</button>
       <QueueDisplay 
         :value="store.latestData"
         :title="'Data'"></QueueDisplay>

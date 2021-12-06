@@ -1,13 +1,10 @@
 <template>
-<ul>
-  <li v-for="c in components" v-bind:key="c">{{c}}</li>
-</ul>
-  <table class="border-collapse border border-green-800">
+  <table class="border-collapse border border-green-800 table-fixed w-5/6 m-auto">
     <thead>
         <tr>
-        <th class="border border-green-600">Component</th>
-        <th class="border border-green-600">Data</th>
-        <th class="border border-green-600">Command</th>
+        <th class="w-1/3 border border-green-600">Component</th>
+        <th class="w-1/3 border border-green-600">Data</th>
+        <th class="w-1/3 border border-green-600">Command</th>
         </tr>
     </thead>
     <tbody>
