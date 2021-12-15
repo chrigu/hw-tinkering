@@ -23,14 +23,14 @@ init(autoreset=True)
 
 
 GAS_IN_FLOWMETER_CONFIG = {
-    'name': 'Gas in flowmeter',
-    'id': 'fm1',
+    'name': 'Gas out flowmeter',
+    'id': 'fm2',
     'flowrate': 10,  # only for fake
-    'trigger_command': 'open_gas',
+    'trigger_command': 'open_release',
     'state_machine_id': 'sm',
     'threshold': {
         'value': 100,
-        'command': 'gas_filled'
+        'command': 'filled'
     }
 }
 

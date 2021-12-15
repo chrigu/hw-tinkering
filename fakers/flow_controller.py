@@ -1,4 +1,6 @@
 import logging
+import os
+
 import colorama as colorama
 
 from web.consumer import Consumer
@@ -7,6 +9,9 @@ from web.fakers.flowmeter import FakeFlowMeter
 from web.publisher import Publisher
 
 logger = logging.getLogger(__name__)
+
+LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
+logger.setLevel(LOGLEVEL)
 
 
 class FakeFlowMeterController:
@@ -44,7 +49,6 @@ class FakeFlowMeterController:
         return cmd.get('messageType', '') == 'cmd'
 
     def gas_volume(self, volume: float) -> None:
-        print('some', volume)
         self.data_publisher.send_msg(self.flowmeter.meter_id, str(volume))
         logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}')
         if volume > self.threshold:

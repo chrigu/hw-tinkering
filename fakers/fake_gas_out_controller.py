@@ -20,35 +20,23 @@ init(autoreset=True)
 
 # cmd + speed + position + done command, initial
 
-VALVE_MOTOR_CONFIG = {
+RELEASE_MOTOR_CONFIG = {
     'name': 'Valve motor',
-    'id': 'm1',
+    'id': 'm2',
     'initial': 0,
-    'speed': 30,
+    'speed': 10,
     'commands': {
-        'open_gas': {
+        'open_release': {
             'speed': 2,
             'position': -90,
             'direction': -1,
-            'done': 'gas_open'
+            'done': 'release_open'
         },
-        'close_gas': {
+        'close_release': {
             'speed': 2,
             'position': 0,
             'direction': 1,
-            'done': 'gas_closed'
-        },
-        'open_liquid': {
-            'speed': 2,
-            'position': 90,
-            'direction': 1,
-            'done': 'liquid_open'
-        },
-        'close_liquid': {
-            'speed': 2,
-            'position': 0,
-            'direction': -1,
-            'done': 'liquid_closed'
+            'done': 'release_closed'
         }
     }
 }
@@ -56,7 +44,7 @@ VALVE_MOTOR_CONFIG = {
 
 async def main():
     loop = asyncio.get_event_loop()
-    controller = FakeMotorController(loop, VALVE_MOTOR_CONFIG)
+    controller = FakeMotorController(loop, RELEASE_MOTOR_CONFIG)
     await controller.start_listen()
 
 if __name__ == '__main__':
