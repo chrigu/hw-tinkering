@@ -1,4 +1,5 @@
 <template>
+  <h3>{{title}}</h3>
   <div>
     {{value}}
   </div>
@@ -6,13 +7,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import {Message} from "@/interfaces";
 
 
 export default defineComponent({
   name: 'QueueDisplay',
   props: {
     value: {
-      type: Object,
+      type: Object as () => Message,
       required: true
     },
     title: {

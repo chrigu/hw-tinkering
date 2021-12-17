@@ -10,13 +10,13 @@
           @click="sendCommand">Send command</button>
       <QueueDisplay 
         :value="store.latestData"
-        :title="'Data'"></QueueDisplay>
+        :title="'Latest Data'"></QueueDisplay>
+      <QueueDisplay
+        :value="store.latestCmd"
+        :title="'Latest Cmd'"></QueueDisplay>
       <QueueHistory 
         :queue="store.cmdQueue"
-        :title="'Data'"></QueueHistory>
-      <QueueDisplay 
-        :value="store.latestCmd"
-        :title="'Cmd'"></QueueDisplay>
+        :title="'cmd history'"></QueueHistory>
       <ComponentTable :component-data="store.latestValuesForComponents" />
   </div>
 </template>

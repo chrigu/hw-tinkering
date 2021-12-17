@@ -17,21 +17,22 @@ export interface State {
   gasVolumeOut: number;
   data: Message[];
   cmd: Message[];
+  wsConnected: boolean;
 }
 
 const addToQueue = (queue: Message[], value: Message): Message[] => {
   queue.push(value)
-  if (queue.length > MAX_QUEUE_LENGTH) {
-    const diff = queue.length = MAX_QUEUE_LENGTH
-    return queue.slice(diff)
-  }
+  // if (queue.length > MAX_QUEUE_LENGTH) {
+  //   const diff = queue.length = MAX_QUEUE_LENGTH
+  //   return queue.slice(diff)
+  // }
 
   return queue
 }
 
 const findLatestForComponent = (data: Message[], component: string): Message | null => {
   const dataForComponent = data.filter(message => message.node === component)
-  return dataForComponent.length > 0 ? dataForComponent[0] : null
+  return dataForComponent.length > 0 ? dataForComponent[dataForComponent.length -1] : null
 }
 
 export const useStore = defineStore('main', {
@@ -40,13 +41,14 @@ export const useStore = defineStore('main', {
     gasVolumeOut: 0.0,
     data: [] as Message[],
     cmd: [] as Message[],
-    componentIds: ['sm', 'fm1', 'fm2', 'm1', 'm2', 'web']
+    componentIds: ['sm', 'fm1', 'fm2', 'm1', 'm2', 'web'],
+    wsConnected: false
   }),
   getters: {
-    dataQueue: (state) => state.data.reverse(),
-    cmdQueue: (state) => state.cmd.reverse(),
-    latestData: (state) => state.data.length == 0 ? {} : state.data[state.data.length-1],
-    latestCmd: (state) => state.cmd.length == 0 ? {} : state.cmd[state.cmd.length-1],
+    dataQueue: state => state.data,
+    cmdQueue: state => state.cmd,
+    latestData: state => state.data.length == 0 ? {} : state.data[state.data.length-1],
+    latestCmd: state => state.cmd.length == 0 ? {} : state.cmd[state.cmd.length-1],
     components: state => state.componentIds,
     latestValuesForComponents: (state) => {
       const values: LatestData = {}
@@ -57,9 +59,9 @@ export const useStore = defineStore('main', {
           cmd: findLatestForComponent(state.cmd, c)
         }
       })
-      console.log(values)
       return values
-    }
+    },
+    connected: state => state.wsConnected
   },
   actions: {
     updateQueue(queueMsg: Message) {
@@ -70,6 +72,9 @@ export const useStore = defineStore('main', {
       if (queueMsg.messageType === 'cmd') {
         this.cmd = addToQueue(this.cmd, queueMsg)
       }
+    },
+    setWsConnected(connected: boolean) {
+      this.wsConnected = connected
     }
   },
 })
