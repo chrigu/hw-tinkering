@@ -41,7 +41,7 @@ export const useStore = defineStore('main', {
     gasVolumeOut: 0.0,
     data: [] as Message[],
     cmd: [] as Message[],
-    componentIds: ['sm', 'fm1', 'fm2', 'm1', 'm2', 'web'],
+    componentIds: ['web', 'sm', 'fm1', 'fm2', 'm1', 'm2'],
     wsConnected: false
   }),
   getters: {
