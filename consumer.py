@@ -1,5 +1,6 @@
 import asyncio
 import json
+from typing import Callable
 
 import aio_pika
 
@@ -8,11 +9,14 @@ class Consumer(object):
 
     _connection = None
 
-    def __init__(self, exchange_name, loop, message_handler):
+    def __init__(self, exchange_name, loop):
 
         self._loop = loop
         self._exchange_name = exchange_name
-        self._message_handler = message_handler
+        self._message_handler = None
+
+    def set_message_handler(self, handler: Callable):
+        self._message_handler = handler
 
     async def run(self):
         self._connection = await aio_pika.connect_robust(

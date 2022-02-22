@@ -6,15 +6,17 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FakeFlowMeter:
-    def __init__(self, name: str, meter_id: str, flow_rate: float, flow_cb: Callable[[float, bool], None],
-                 initial_volume=0):
+    def __init__(self, name: str, meter_id: str, flow_rate: float, initial_volume=0):
 
         self.volume = initial_volume
         self.name = name
         self.meter_id = meter_id
-        self.flow_cb = flow_cb
         self.is_measuring = False
         self.flow_rate = flow_rate
+        self.flow_cb = None
+
+    def set_flow_cb(self, flow_cb: Callable[[float, bool], None]):
+        self.flow_cb = flow_cb
 
     def measure(self):
         if self.is_measuring:

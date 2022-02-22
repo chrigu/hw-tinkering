@@ -1,5 +1,6 @@
 import json
 import logging
+from abc import ABC, abstractmethod
 
 import pika
 
@@ -9,7 +10,14 @@ logging.basicConfig()
 logging.getLogger('aio_pika').setLevel(logging.INFO)
 
 
-class Publisher:
+class Publisher(ABC):
+
+    @abstractmethod
+    def send_message(self, node: str, data: str):
+        '''Send a message to the queue'''
+
+
+class MqttPublisher(Publisher):
 
     def __init__(self, data_type):
         credentials = pika.PlainCredentials('guest', 'guest')
@@ -24,7 +32,7 @@ class Publisher:
 
         self._channel.exchange_declare(exchange=data_type, exchange_type='fanout')
 
-    def send_msg(self, node: str, data: str):
+    def send_message(self, node: str, data: str):
         LOGGER.info(f'Sending from {node} {self._data_type}:{data}')
         self._channel.basic_publish(exchange=self._data_type, routing_key='',
                                     body=bytes(json.dumps({'messageType': self._data_type,
