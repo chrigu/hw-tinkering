@@ -14,7 +14,7 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 logger.setLevel(LOGLEVEL)
 
 
-class FakeFlowMeterController:
+class FlowMeterController:
 
     def __init__(self, config: dict, cmd_publisher: Publisher, data_publisher: Publisher, consumer: Consumer,
                  flowmeter: FakeFlowMeter):
@@ -60,4 +60,4 @@ class FakeFlowMeterController:
             self.cmd_publisher.send_message(self.state_machine_id, str(self.threshold_cmd))
 
     def __repr__(self):
-        return f'FakeFlowmeterController {self.flowmeter.meter_id}'
+        return f'FlowmeterController {self.flowmeter.meter_id}'
