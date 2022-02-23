@@ -24,14 +24,15 @@ init(autoreset=True)
 # cmd + speed + position + done command, initial
 
 
-class FakeMotorController:
+class MotorController:
 
-    def __init__(self, loop, config: dict):
-        self.loop = loop
-        self.consumer = Consumer('cmd', loop, self.cmd_handler)
-        self.data_publisher = Publisher('data')
-        self.cmd_publisher = Publisher('cmd')
-        self.motor = FakeMotor(config['initial'], config['speed'], config['name'], config['id'], self.motor_position)
+    def __init__(self, config: dict, data_publisher: Publisher, cmd_publisher: Publisher, consumer: Consumer,
+                 motor: FakeMotor):
+        self.consumer = consumer
+        self.data_publisher = data_publisher
+        self.cmd_publisher = cmd_publisher
+        self.motor = motor
+        self.motor.set_position_cb(self.motor_position)
         self.commands = config['commands']
         self.current_cmd = {}
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")

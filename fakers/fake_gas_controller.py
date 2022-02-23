@@ -3,7 +3,10 @@ import os
 
 import asyncio
 
-from web.fakers.motor_controller import FakeMotorController
+from web.consumer import Consumer
+from web.fakers.motor import FakeMotor
+from web.fakers.motor_controller import MotorController
+from web.publisher import MqttPublisher
 
 logger = logging.getLogger(__name__)
 from colorama import init
@@ -56,7 +59,12 @@ VALVE_MOTOR_CONFIG = {
 
 async def main():
     loop = asyncio.get_event_loop()
-    controller = FakeMotorController(loop, VALVE_MOTOR_CONFIG)
+    consumer = Consumer('cmd', loop)
+    cmd_publisher = MqttPublisher('cmd')
+    data_publisher = MqttPublisher('data')
+    motor = FakeMotor(VALVE_MOTOR_CONFIG['initial'], VALVE_MOTOR_CONFIG['speed'], VALVE_MOTOR_CONFIG['name'],
+                      VALVE_MOTOR_CONFIG['id'])
+    controller = MotorController(VALVE_MOTOR_CONFIG, data_publisher, cmd_publisher, consumer, motor)
     await controller.start_listen()
 
 if __name__ == '__main__':

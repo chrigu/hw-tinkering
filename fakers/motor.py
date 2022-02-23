@@ -6,14 +6,16 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FakeMotor:
-    def __init__(self, initial_position: float, speed: float, name: str, motor_id: str,
-                 position_cb: Callable[[float, bool], None]):
+    def __init__(self, initial_position: float, speed: float, name: str, motor_id: str):
 
         self.position = initial_position
         self.speed = speed  # degrees / second
         self.name = name
         self.turn_done = True
         self.motor_id = motor_id
+        self._position_cb = None
+
+    def set_position_cb(self, position_cb: Callable[[float, bool], None]):
         self._position_cb = position_cb
 
     def turn(self, position: float, direction: int, speed=0):  # 1 clockwise, -1 counterclockwise
