@@ -4,7 +4,7 @@ import os
 import asyncio
 import colorama as colorama
 
-from web.consumer import Consumer
+from web.consumer import MqttConsumer
 from web.fakers.flow_controller import FlowMeterController
 from web.fakers.flowmeter import FakeFlowMeter
 from web.publisher import MqttPublisher
@@ -38,7 +38,7 @@ GAS_IN_FLOWMETER_CONFIG = {
 
 async def main():
     loop = asyncio.get_event_loop()
-    consumer = Consumer('cmd', loop)
+    consumer = MqttConsumer('cmd', loop)
     cmd_publisher = MqttPublisher('cmd')
     data_publisher = MqttPublisher('data')
     flowmeter = FakeFlowMeter(GAS_IN_FLOWMETER_CONFIG['name'], GAS_IN_FLOWMETER_CONFIG['id'],

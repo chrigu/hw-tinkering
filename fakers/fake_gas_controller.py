@@ -3,7 +3,7 @@ import os
 
 import asyncio
 
-from web.consumer import Consumer
+from web.consumer import MqttConsumer
 from web.fakers.motor import FakeMotor
 from web.fakers.motor_controller import MotorController
 from web.publisher import MqttPublisher
@@ -59,7 +59,7 @@ VALVE_MOTOR_CONFIG = {
 
 async def main():
     loop = asyncio.get_event_loop()
-    consumer = Consumer('cmd', loop)
+    consumer = MqttConsumer('cmd', loop)
     cmd_publisher = MqttPublisher('cmd')
     data_publisher = MqttPublisher('data')
     motor = FakeMotor(VALVE_MOTOR_CONFIG['initial'], VALVE_MOTOR_CONFIG['speed'], VALVE_MOTOR_CONFIG['name'],

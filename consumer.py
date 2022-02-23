@@ -1,11 +1,19 @@
 import asyncio
 import json
+from abc import ABC, abstractmethod
 from typing import Callable
 
 import aio_pika
 
 
-class Consumer(object):
+class Consumer(ABC):
+
+    @abstractmethod
+    def set_message_handler(self, handler: Callable):
+        '''Send a message to the queue'''
+
+
+class MqttConsumer(Consumer):
 
     _connection = None
 
