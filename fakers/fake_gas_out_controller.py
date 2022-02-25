@@ -3,10 +3,10 @@ import os
 
 import asyncio
 
-from web.consumer import MqttConsumer
+from web.consumer import RabbitConsumer
 from web.fakers.motor import FakeMotor
 from web.fakers.motor_controller import MotorController
-from web.publisher import MqttPublisher
+from web.publisher import RabbitPublisher
 
 logger = logging.getLogger(__name__)
 from colorama import init
@@ -47,9 +47,9 @@ RELEASE_MOTOR_CONFIG = {
 
 async def main():
     loop = asyncio.get_event_loop()
-    consumer = MqttConsumer('cmd', loop)
-    cmd_publisher = MqttPublisher('cmd')
-    data_publisher = MqttPublisher('data')
+    consumer = RabbitConsumer('cmd', loop)
+    cmd_publisher = RabbitPublisher('cmd')
+    data_publisher = RabbitPublisher('data')
     motor = FakeMotor(RELEASE_MOTOR_CONFIG['initial'], RELEASE_MOTOR_CONFIG['speed'], RELEASE_MOTOR_CONFIG['name'],
                       RELEASE_MOTOR_CONFIG['id'])
     controller = MotorController(RELEASE_MOTOR_CONFIG, data_publisher, cmd_publisher, consumer, motor)

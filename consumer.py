@@ -13,7 +13,7 @@ class Consumer(ABC):
         '''Send a message to the queue'''
 
 
-class MqttConsumer(Consumer):
+class RabbitConsumer(Consumer):
 
     _connection = None
 

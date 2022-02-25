@@ -17,7 +17,7 @@ class Publisher(ABC):
         '''Send a message to the queue'''
 
 
-class MqttPublisher(Publisher):
+class RabbitPublisher(Publisher):
 
     def __init__(self, data_type):
         credentials = pika.PlainCredentials('guest', 'guest')
