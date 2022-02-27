@@ -24,7 +24,7 @@ class FlowMeterController:
         self.flowmeter = flowmeter
 
         self.consumer.set_message_handler(self.cmd_handler)
-        self.flowmeter.flow_cb(self.gas_volume)
+        self.flowmeter.set_flow_cb(self.gas_volume)
 
         self.trigger_cmd = config['trigger_command']
         self.threshold = config['threshold']['value']
