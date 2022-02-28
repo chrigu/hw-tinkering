@@ -59,11 +59,11 @@ class MotorController:
         return cmd.get('messageType', '') == 'cmd'
 
     def motor_position(self, position: float, done: bool) -> None:
-        self.data_publisher.send_msg(self.motor.motor_id, str(position))
+        self.data_publisher.send_message(self.motor.motor_id, str(position))
         logger.debug(colorama.Fore.GREEN + f'{self}: Motor at position {position}')
         if done:
             logger.debug(colorama.Fore.GREEN + f'{self}: Motor done')
-            self.cmd_publisher.send_msg(self.motor.motor_id, self.current_cmd['done'])
+            self.cmd_publisher.send_message(self.motor.motor_id, self.current_cmd['done'])
 
     def __repr__(self):
         return f'FakeMotorController {self.motor.motor_id}'
