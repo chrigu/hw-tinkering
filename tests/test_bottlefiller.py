@@ -105,16 +105,16 @@ class TestDataHandler(IsolatedAsyncioTestCase):
         self.consumer_mock = consumer_mock
         self.consumer_mock.return_value = None
         self.publisher_mock.return_value = None
-        self.filler = BottleFiller(None, 'sm')
+        self.filler = BottleFiller(SENDER, self.consumer_mock, self.consumer_mock, self.publisher_mock)
 
     @patch('web.state_machine.BottleFiller.call_trigger')
     async def test_handle_valid_command(self, start_mock):
-        await self.filler.data_handler({'messageType': 'data', 'data': 'start'})
+        self.filler.cmd_handler({'messageType': 'data', 'data': 'start'})
         self.assertEqual('off', self.filler.state)
         start_mock.assert_called_with('start')
 
     @patch('web.state_machine.BottleFiller.call_trigger')
     async def test_handle_invalid_command(self, start_mock):
-        await self.filler.data_handler({'messageType': 'data', 'data': 'asdfasdf'})
+        self.filler.cmd_handler({'messageType': 'data', 'data': 'asdfasdf'})
         self.assertEqual('off', self.filler.state)
         start_mock.assert_not_called()
