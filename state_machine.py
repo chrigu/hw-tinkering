@@ -6,8 +6,8 @@ import asyncio
 from enum import Enum
 from transitions import Machine
 
-from web.consumer import Consumer
-from web.publisher import Publisher
+from web.consumer import RabbitConsumer, Consumer
+from web.publisher import RabbitPublisher, Publisher
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +73,13 @@ class BottleFiller:
         {'trigger': 'abort', 'source': '*', 'dest': 'off'},
     ]
 
-    def __init__(self, loop, id):
+    def __init__(self, id, data_consumer: Consumer, cmd_consumer: Consumer, cmd_pubisher: Publisher):
         self.id = id
         self.machine = Machine(model=self, states=BottleFiller.states, transitions=BottleFiller.transitions,
                                initial='off')
-        self.cmd_publisher = Publisher('cmd')
-        self.cmd_consumer = Consumer('cmd', loop, self.consumer_handler)
-        self.data_consumer = Consumer('data', loop, self.consumer_handler)
+        self.cmd_publisher = cmd_pubisher
+        self.cmd_consumer = cmd_consumer
+        self.data_consumer = data_consumer
 
     async def start_listen(self):
         await self.cmd_consumer.run()
@@ -139,7 +139,7 @@ class BottleFiller:
 
     def _send_cmd(self, cmd):
         logger.debug(colorama.Fore.GREEN + f"{self}: Sending '{cmd}')")
-        self.cmd_publisher.send_msg('sm', cmd)
+        self.cmd_publisher.send_message(self.id, cmd)
 
     def __repr__(self):
         return f'BottleFiller'
@@ -147,7 +147,10 @@ class BottleFiller:
 
 async def main():
     loop = asyncio.get_event_loop()
-    filler = BottleFiller(loop, 'sm')
+    data_consumer = RabbitConsumer('data', loop)
+    cmd_consumer = RabbitConsumer('cmd', loop)
+    cmd_publisher = RabbitPublisher('cmd')
+    filler = BottleFiller('sm', data_consumer, cmd_consumer, cmd_publisher)
     await filler.start_listen()
 
 if __name__ == '__main__':
