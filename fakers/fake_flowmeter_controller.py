@@ -26,7 +26,24 @@ init(autoreset=True)
 GAS_IN_FLOWMETER_CONFIG = {
     'name': 'Gas in flowmeter',
     'id': 'fm1',
-    'flowrate': 10,  # only for fake
+    'flow_rates': [
+        {
+            "duration": 0.5,
+            "flow": 20
+        },
+        {
+            "duration": 2,
+            "flow": 10
+        },
+        {
+            "duration": 1,
+            "flow": 5
+        },
+        {
+            "duration": 1,
+            "flow": 0
+        },
+    ],
     'trigger_command': 'open_gas',
     'state_machine_id': 'sm',
     'threshold': {
@@ -42,7 +59,7 @@ async def main():
     cmd_publisher = RabbitPublisher('cmd')
     data_publisher = RabbitPublisher('data')
     flowmeter = FakeFlowMeter(GAS_IN_FLOWMETER_CONFIG['name'], GAS_IN_FLOWMETER_CONFIG['id'],
-                              GAS_IN_FLOWMETER_CONFIG['flowrate'])
+                              GAS_IN_FLOWMETER_CONFIG['flowrates'])
     controller = FlowMeterController(GAS_IN_FLOWMETER_CONFIG, cmd_publisher, data_publisher, consumer, flowmeter)
     await controller.start_listen()
 
