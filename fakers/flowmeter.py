@@ -33,11 +33,12 @@ class FakeFlowMeter:
                 while elapsed < duration:
                     time.sleep(0.1)
 
-                    self.volume += flow_rate['flow']/10
+                    volume_diff = flow_rate['flow']/10
+                    self.volume += volume_diff
                     if i % 10 == 0:
                         # logging.debug(f'Fakemotor {self.name} at position {self.position}')
                         if self.flow_cb:
-                            self.flow_cb(self.volume)
+                                self.flow_cb(self.volume, volume_diff)
 
                     i += 1
 

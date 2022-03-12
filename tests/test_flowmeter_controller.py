@@ -1,10 +1,8 @@
-import asyncio
 from unittest import IsolatedAsyncioTestCase
-from unittest.mock import patch, call
+from unittest.mock import patch
 
 from web.fakers.flow_controller import FlowMeterController
 from web.fakers.flowmeter import FakeFlowMeter
-from web.fakers.motor_controller import MotorController
 
 
 FLOWMETER_CONFIG = {
@@ -15,7 +13,8 @@ FLOWMETER_CONFIG = {
     'state_machine_id': 'sm',
     'threshold': {
         'value': 100,
-        'command': 'close_valve'
+        'command': 'close_valve',
+        'difference': 100
     }
 }
 
@@ -48,3 +47,11 @@ class TestFlowController(IsolatedAsyncioTestCase):
         await self.mc.cmd_handler({'messageType': 'some', 'node': FLOWMETER_CONFIG['id'], 'data': cmd})
         self.assertEqual({}, self.mc.current_cmd)
 
+    def test_threshold_true(self):
+        self.assertTrue(self.mc.check_volume(200, 99))
+
+    def test_threshold_false_volume(self):
+        self.assertFalse(self.mc.check_volume(99, 99))
+
+    def test_threshold_false_difference(self):
+        self.assertFalse(self.mc.check_volume(200, 101))

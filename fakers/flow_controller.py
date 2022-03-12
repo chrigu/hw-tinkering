@@ -26,10 +26,11 @@ class FlowMeterController:
         self.consumer.set_message_handler(self.cmd_handler)
         self.flowmeter.set_flow_cb(self.gas_volume)
 
-        self.trigger_cmd = config['trigger_command']
+        self.trigger_cmd = config.get('trigger_command', '')
         self.threshold = config['threshold']['value']
         self.threshold_cmd = config['threshold']['command']
         self.state_machine_id = config['state_machine_id']
+        self.difference_threshold = config['threshold'].get('difference', 1000)
         self.current_cmd = {}
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
 
@@ -52,12 +53,15 @@ class FlowMeterController:
     def _command_for_node(self, cmd: dict):
         return cmd.get('messageType', '') == 'cmd'
 
-    def gas_volume(self, volume: float) -> None:
+    def gas_volume(self, volume: float, diff_volume: float) -> None:
         self.data_publisher.send_message(self.flowmeter.meter_id, str(volume))
-        logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}')
-        if volume > self.threshold:
+        logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}, diff: {diff_volume}')
+        if self.check_volume(volume, diff_volume):
             self.flowmeter.stop()
             self.cmd_publisher.send_message(self.state_machine_id, str(self.threshold_cmd))
+
+    def check_volume(self, volume: float, diff_volume: float):
+            return volume > self.threshold and diff_volume < self.difference_threshold
 
     def __repr__(self):
         return f'FlowmeterController {self.flowmeter.meter_id}'

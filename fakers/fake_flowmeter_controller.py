@@ -48,7 +48,8 @@ GAS_IN_FLOWMETER_CONFIG = {
     'state_machine_id': 'sm',
     'threshold': {
         'value': 100,
-        'command': 'gas_filled'
+        'command': 'gas_filled',
+        'difference': 100
     }
 }
 
