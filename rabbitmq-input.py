@@ -6,14 +6,14 @@ import asyncio
 # from adafruit_servokit import ServoKit
 
 # https://learn.adafruit.com/adafruit-16-channel-pwm-servo-hat-for-raspberry-pi/using-the-python-library
-from publisher import Publisher
+from publisher import RabbitPublisher
 
 logger = logging.getLogger(__name__)
 
 
 def main():
     run = True
-    cmd_publisher = Publisher('data')
+    cmd_publisher = RabbitPublisher('cmd')
     # cmd_publisher.send_msg('fm1', 'cmd', '34')
     while run:
         cmd = input("Enter command: ")
@@ -22,7 +22,7 @@ def main():
         else:
             # data = cmd.split(':')
             # cmd_publisher.send_msg(data[0], 'cmd', data[1])
-            cmd_publisher.send_msg('data', 'some', cmd)
+                cmd_publisher.send_message('some', cmd)
 
 
 if __name__ == '__main__':

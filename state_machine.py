@@ -5,6 +5,7 @@ import colorama as colorama
 import asyncio
 from enum import Enum
 from transitions import Machine
+from transitions.core import MachineError
 
 from web.consumer import RabbitConsumer, Consumer
 from web.publisher import RabbitPublisher, Publisher
@@ -80,6 +81,8 @@ class BottleFiller:
         self.cmd_publisher = cmd_pubisher
         self.cmd_consumer = cmd_consumer
         self.data_consumer = data_consumer
+        self.cmd_consumer.set_message_handler(self.consumer_handler)
+        self.data_consumer.set_message_handler(self.consumer_handler)
 
     async def start_listen(self):
         await self.cmd_consumer.run()
@@ -105,7 +108,10 @@ class BottleFiller:
             logger.debug(colorama.Fore.RED + f'{self} cmd_handler: No valid trigger {data["data"]}')
             return
 
-        self.call_trigger(data['data'])
+        try:
+            self.call_trigger(data['data'])
+        except MachineError as e:
+            logger.info(colorama.Fore.YELLOW + f'{self} cmd_handler: MachineError {e}')
 
     def call_trigger(self, data):
         getattr(self, data)()

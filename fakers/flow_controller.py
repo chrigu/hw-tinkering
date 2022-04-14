@@ -1,4 +1,5 @@
 import logging
+import time
 import os
 
 import colorama as colorama
@@ -32,6 +33,7 @@ class FlowMeterController:
         self.state_machine_id = config['state_machine_id']
         self.difference_threshold = config['threshold'].get('difference', 1000)
         self.current_cmd = {}
+        self.time = 0.0
         logger.debug(colorama.Fore.GREEN + f"{self}: Initialized")
 
     async def start_listen(self):
@@ -53,15 +55,20 @@ class FlowMeterController:
     def _command_for_node(self, cmd: dict):
         return cmd.get('messageType', '') == 'cmd'
 
-    def gas_volume(self, volume: float, diff_volume: float) -> None:
-        self.data_publisher.send_message(self.flowmeter.meter_id, str(volume))
-        logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {volume}, diff: {diff_volume}')
-        if self.check_volume(volume, diff_volume):
+    def gas_volume(self, pulses: int, diff_pulses: int) -> None:
+        self.data_publisher.send_message(self.flowmeter.meter_id, str(pulses))
+        logger.debug(colorama.Fore.GREEN + f'{self}: Measured volume {pulses}, diff: {diff_pulses}')
+        logger.debug(colorama.Fore.GREEN + f'{self}: check volume {self.threshold}, diff: {self.difference_threshold}')
+        if self.check_pulses(diff_pulses):
             self.flowmeter.stop()
             self.cmd_publisher.send_message(self.state_machine_id, str(self.threshold_cmd))
 
-    def check_volume(self, volume: float, diff_volume: float):
-            return volume > self.threshold and diff_volume < self.difference_threshold
+    def check_pulses(self, diff_pulses: int) -> bool:
+        if diff_pulses != 0:
+            self.time = time.time()
+            return False
+
+        return time.time() - self.time > 1.5
 
     def __repr__(self):
         return f'FlowmeterController {self.flowmeter.meter_id}'

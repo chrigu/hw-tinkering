@@ -2,7 +2,6 @@ import logging
 import os
 
 import asyncio
-import colorama as colorama
 
 from web.consumer import RabbitConsumer
 from web.fakers.flow_controller import FlowMeterController
@@ -29,19 +28,19 @@ GAS_IN_FLOWMETER_CONFIG = {
     'flow_rates': [
         {
             "duration": 0.5,
-            "flow": 20
+            "pulses": 200
+        },
+        {
+            "duration": 0.5,
+            "pulses": 100
+        },
+        {
+            "duration": 1,
+            "pulses": 300
         },
         {
             "duration": 2,
-            "flow": 10
-        },
-        {
-            "duration": 1,
-            "flow": 5
-        },
-        {
-            "duration": 1,
-            "flow": 0
+            "pulses": 0
         },
     ],
     'trigger_command': 'open_gas',
@@ -60,7 +59,7 @@ async def main():
     cmd_publisher = RabbitPublisher('cmd')
     data_publisher = RabbitPublisher('data')
     flowmeter = FakeFlowMeter(GAS_IN_FLOWMETER_CONFIG['name'], GAS_IN_FLOWMETER_CONFIG['id'],
-                              GAS_IN_FLOWMETER_CONFIG['flowrates'])
+                              GAS_IN_FLOWMETER_CONFIG['flow_rates'])
     controller = FlowMeterController(GAS_IN_FLOWMETER_CONFIG, cmd_publisher, data_publisher, consumer, flowmeter)
     await controller.start_listen()
 

@@ -1,3 +1,4 @@
+import time
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import patch
 
@@ -47,11 +48,14 @@ class TestFlowController(IsolatedAsyncioTestCase):
         await self.mc.cmd_handler({'messageType': 'some', 'node': FLOWMETER_CONFIG['id'], 'data': cmd})
         self.assertEqual({}, self.mc.current_cmd)
 
-    def test_threshold_true(self):
-        self.assertTrue(self.mc.check_volume(200, 99))
+    def test_no_pulses_and_timeout(self):
+        self.mc.time = time.time() - 1.5
+        self.assertTrue(self.mc.check_pulses(0))
 
-    def test_threshold_false_volume(self):
-        self.assertFalse(self.mc.check_volume(99, 99))
+    def test_no_pulses_no_timeout(self):
+        self.mc.time = time.time() - 1.0
+        self.assertFalse(self.mc.check_pulses(0))
 
-    def test_threshold_false_difference(self):
-        self.assertFalse(self.mc.check_volume(200, 101))
+    def test_pulses(self):
+        self.mc.time = time.time() - 1.0
+        self.assertFalse(self.mc.check_pulses(200))

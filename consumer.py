@@ -46,5 +46,3 @@ class RabbitConsumer(Consumer):
             body_as_string = "".join(chr(x) for x in message.body)
             msg_data = json.loads(body_as_string)
             await self._message_handler(msg_data)
-
-

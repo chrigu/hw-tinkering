@@ -31,6 +31,7 @@ class MotorController:
         self.consumer = consumer
         self.data_publisher = data_publisher
         self.cmd_publisher = cmd_publisher
+        self.consumer.set_message_handler(self.cmd_handler)
         self.motor = motor
         self.motor.set_position_cb(self.motor_position)
         self.commands = config['commands']
