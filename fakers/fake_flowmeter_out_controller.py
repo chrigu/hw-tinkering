@@ -32,7 +32,7 @@ GAS_IN_FLOWMETER_CONFIG = {
             "pulses": 29
         },
         {
-            "duration": 1,
+            "duration": 1.6,
             "pulses": 0
         },
     ],
